@@ -70,25 +70,25 @@ int create_patch(char *argv[])
         long int count = 0; // number of not equal bytes for write
         old_file.get(old_byte);
         new_file.get(new_byte);
-        if(old_file.eof() || new_file.eof()) // check eof !delete!
+        if(new_file.eof()) // check eof !delete!
         {
             old_file.close();
             new_file.close();
             patch_file.close();
             break;
         }
-        if(old_byte != new_byte) // compare two byte
+        if(old_byte != new_byte || old_file.eof()) // compare two byte
         {
             new_offset = old_offset; // offset in file
             vector<char> buff; // for bytes
-            while(old_byte != new_byte)
-            {                
+            while(old_byte != new_byte || old_file.eof())
+            {
                 buff.push_back(new_byte);
                 old_file.get(old_byte); // next byte
                 new_file.get(new_byte); //
-                if(old_file.eof() || new_file.eof()) break;
                 count++; // inc noneb
                 new_offset++; // for after use
+                if(new_file.eof()) break;
             }
             patch_file << old_offset << '\x00'; // write offset
             patch_file << count << '\x00'; // write noneb
