@@ -21,5 +21,6 @@ License: GPL 3.0
 int check_flags(int argc, char *argv[]);
 int create_patch(char *argv[]);
 int use_patch(char *argv[]);
+int visual_diff(char *argv[]);
 
 #endif

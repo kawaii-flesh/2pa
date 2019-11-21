@@ -34,6 +34,7 @@ int check_flags(int argc, char *argv[])
     }
     if(!strcmp(argv[1], "c")) {return 2;}
     else if(!strcmp(argv[1], "p")) {return 3;}
+    else if(!strcmp(argv[1], "v")) {return 4;}
     return 1;
 }
 
@@ -145,5 +146,42 @@ int use_patch(char *argv[])
     patch_file.close();
     cout << "Patched - done!\n";
     cout << "Bytes patched: " << nodb << endl;
+    return 0;
+}
+
+int visual_diff(char *argv[])
+{
+    ifstream old_file(argv[2], ios::binary);
+    if(!old_file.is_open())
+    {
+        cout << "Can't open file: " << argv[2] << endl;
+        return 1;
+    }
+    ifstream new_file(argv[3], ios::binary);
+    if(!new_file.is_open())
+    {
+        old_file.close();
+        cout << "Can't open file: " << argv[3] << endl;
+        return 1;
+    }
+    cout << "0 1 2 3 4 5 6 7 8 9 A B C D E F\n";
+    int column{};
+    while(!old_file.eof() || !new_file.eof())
+    {
+        for(int i = 0; i < 16; i++)
+        {
+            char old_byte = 0, new_byte = 0;
+            old_file.get(old_byte);
+            new_file.get(new_byte);
+            if(old_file.eof() || new_file.eof())
+                cout << "\x1b[33m-\x1b[0m ";
+            else if(old_byte != new_byte)
+                cout << "\x1b[31m#\x1b[0m ";
+            else if(old_byte == new_byte)
+                cout << "\x1b[32m#\x1b[0m ";
+        }
+        cout << endl;
+    }
+    cout << endl;
     return 0;
 }

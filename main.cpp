@@ -28,8 +28,10 @@ int main(int argc, char *argv[])
         cout << "=========================\n";
         cout << "c - create patch file\n";
         cout << "p - patch file\n";
+        cout << "v - visualizing difference\n";
         cout << "2pa c [old file] [new file] [output patch file]\n";
         cout << "2pa p [old file] [patch file]\n";
+        cout << "2pa v [old file] [new file]\n";
         cout << "=========================\n";
         return 1;
     }
@@ -40,12 +42,15 @@ int main(int argc, char *argv[])
         cout << "=========================\n";
         cout << "c - create patch file\n";
         cout << "p - patch file\n";
+        cout << "v - visualizing difference\n";
         cout << "2pa c [old file] [new file] [output patch file]\n";
         cout << "2pa p [old file] [patch file]\n";
+        cout << "2pa v [old file] [new file]\n";
         cout << "=========================\n";
         return 0;
     }
     if(flag == 2) create_patch(argv);
     else if(flag == 3) use_patch(argv);
+    else if(flag == 4) visual_diff(argv);
     return 0;
 }
