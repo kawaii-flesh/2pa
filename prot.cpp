@@ -64,6 +64,7 @@ int create_patch(char *argv[])
     char old_byte{}, new_byte{};
     long int old_offset{};
     long int new_offset{};
+    long int nodb{};
 
     while(true)
     {
@@ -92,6 +93,7 @@ int create_patch(char *argv[])
             }
             patch_file << old_offset << '\x00'; // write offset
             patch_file << count << '\x00'; // write noneb
+            nodb += count;
             for (char ch : buff) // write bytes
             {
                 patch_file << ch;
@@ -104,6 +106,7 @@ int create_patch(char *argv[])
     old_file.close();
     new_file.close();
     cout << "Patch file created!\n";
+    cout << "Number of different bytes: " << nodb << endl;
     return 0;
 }
 
@@ -122,6 +125,7 @@ int use_patch(char *argv[])
         cout << "Can't open file: " << argv[3] << endl;
         return 1;
     }
+    long int nodb{};
     while(true)
     {
         long int offset, size;
@@ -129,6 +133,7 @@ int use_patch(char *argv[])
         patch_file.get();
         if(patch_file.eof()) break;
         patch_file >> size;
+        nodb += size;
         patch_file.get();
         char *buff = new char[size];
         patch_file.read(buff, size);
@@ -139,5 +144,6 @@ int use_patch(char *argv[])
     old_file.close();
     patch_file.close();
     cout << "Patched - done!\n";
+    cout << "Bytes patched: " << nodb << endl;
     return 0;
 }
