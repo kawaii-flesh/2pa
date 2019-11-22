@@ -240,40 +240,6 @@ int visual_diff(char *argv[])
     }
     if(argv[4][0] == '0')
     {
-        cout << " -offset-  0 1 2 3 4 5 6 7 8 9 A B C D E F\n";
-        char old_byte{}, new_byte{};
-        long int offset = 0;
-        string offset_str;
-        while(!old_file.eof() || !new_file.eof())
-        {            
-            stringstream sstr;
-            sstr << hex << offset;
-            offset_str = sstr.str();
-            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
-            offset_str = "0x" + offset_str;
-            cout << offset_str << ' ';
-            for(int i = 0; i < 16; i++)
-            {
-                old_byte = 0;
-                new_byte = 0;
-                old_file.get(old_byte);
-                new_file.get(new_byte);
-                if(old_file.eof() && new_file.eof()) break;
-                if(old_file.eof() || new_file.eof())
-                    cout << "\x1b[33m-\x1b[0m ";
-                else if(old_byte != new_byte)
-                {
-                    cout << "\x1b[31m#\x1b[0m ";
-                }
-                else if(old_byte == new_byte)
-                    cout << "\x1b[32m#\x1b[0m ";
-            }
-            cout << endl;
-            offset += 0x10;
-        }
-    }
-    else if(argv[4][0] == '1')
-    {
         cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
         char old_byte{}, new_byte{};
         char buff[3];
@@ -317,7 +283,7 @@ int visual_diff(char *argv[])
                 else if(old_byte != new_byte)
                 {
                     byte_to_string(old_byte, buff);
-                    cout << "\x1b[31m" << buff << ' ' << "\x1b[0m";
+                    cout << "\x1b[31m" << buff << '~' << "\x1b[0m";
                     byte_to_string(new_byte, buff);
                     cout << "\x1b[31m" << buff << "\x1b[0m" << space;
                     diff = true;
@@ -333,6 +299,66 @@ int visual_diff(char *argv[])
             offset += 0x10;
         }
     }
-
+    else if(argv[4][0] == '1')
+    {
+        cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
+        char old_byte{}, new_byte{};
+        char buff[3];
+        char space{};
+        long int offset = 0;
+        string offset_str;
+        while(!old_file.eof() || !new_file.eof())
+        {
+            stringstream sstr;
+            sstr << hex << offset;
+            offset_str = sstr.str();
+            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            offset_str = "0x" + offset_str;
+            cout << offset_str << ' ';
+            bool diff = false;
+            for(int i = 0; i < 16; i++)
+            {
+                old_byte = 0;
+                new_byte = 0;
+                space = '|';
+                if(i == 0) cout << space;
+                old_file.get(old_byte);
+                new_file.get(new_byte);
+                if(old_file.eof() && new_file.eof()) break;
+                if(old_file.eof() || new_file.eof())
+                {
+                    diff = true;
+                    if(old_file.eof())
+                    {
+                        cout << "-- ";
+                        byte_to_string(new_byte, buff);
+                        cout << buff << space;
+                    }
+                    else
+                    {
+                        byte_to_string(old_byte, buff);
+                        cout <<  buff << ' ';
+                        cout << "--" << space;
+                    }
+                }
+                else if(old_byte != new_byte)
+                {
+                    byte_to_string(old_byte, buff);
+                    cout <<  buff << '~';
+                    byte_to_string(new_byte, buff);
+                    cout << buff << space;
+                    diff = true;
+                }
+                else if(old_byte == new_byte)
+                {
+                    byte_to_string(old_byte, buff);
+                    cout << buff << ' ' << buff << space;
+                }
+            }
+            if(diff) cout << " !";
+            cout << endl;
+            offset += 0x10;
+        }
+    }
     return 0;
 }
