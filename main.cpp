@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         cout << "v - visualizing difference\n";
         cout << "2pa c [old file] [new file] [output patch file]\n";
         cout << "2pa p [old file] [patch file]\n";
-        cout << "2pa v [old file] [new file]\n";
+        cout << "2pa v [old file] [new file] [type(0-2)]\n";
         cout << "=========================\n";
         return 1;
     }
@@ -45,12 +45,36 @@ int main(int argc, char *argv[])
         cout << "v - visualizing difference\n";
         cout << "2pa c [old file] [new file] [output patch file]\n";
         cout << "2pa p [old file] [patch file]\n";
-        cout << "2pa v [old file] [new file]\n";
+        cout << "2pa v [old file] [new file] [type(0-2)]\n";
         cout << "=========================\n";
         return 0;
     }
-    if(flag == 2) create_patch(argv);
-    else if(flag == 3) use_patch(argv);
-    else if(flag == 4) visual_diff(argv);
+    if(flag == 2)
+    {
+        if(argc != 5)
+        {
+            cout << "2pa c [old file] [new file] [output patch file]\n";
+            return 1;
+        }
+        create_patch(argv);
+    }
+    else if(flag == 3)
+    {
+        if(argc != 4)
+        {
+            cout << "2pa p [old file] [patch file]\n";
+            return 1;
+        }
+        use_patch(argv);
+    }
+    else if(flag == 4)
+    {
+        if(argc != 5)
+        {
+            cout << "2pa v [old file] [new file] [type(0-2)]\n";
+            return 1;
+        }
+        visual_diff(argv);
+    }
     return 0;
 }

@@ -20,6 +20,7 @@ License: GPL 3.0
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -149,6 +150,79 @@ int use_patch(char *argv[])
     return 0;
 }
 
+void byte_to_string(unsigned char byte, char *buff)
+{
+    for(int i = 1; i >= 0; i--)
+    {
+    unsigned char first = byte % 0x10;
+    if(first == 0)
+    {
+        buff[i] = '0';
+    }
+    else if(first == 1)
+    {
+        buff[i] = '1';
+    }
+    else if(first == 2)
+    {
+        buff[i] = '2';
+    }
+    else if(first == 3)
+    {
+        buff[i] = '3';
+    }
+    else if(first == 4)
+    {
+        buff[i] = '4';
+    }
+    else if(first == 5)
+    {
+        buff[i] = '5';
+    }
+    else if(first == 6)
+    {
+        buff[i] = '6';
+    }
+    else if(first == 7)
+    {
+        buff[i] = '7';
+    }
+    else if(first == 8)
+    {
+        buff[i] = '8';
+    }
+    else if(first == 9)
+    {
+        buff[i] = '9';
+    }
+    else if(first == 0xa)
+    {
+        buff[i] = 'a';
+    }
+    else if(first == 0xb)
+    {
+        buff[i] = 'b';
+    }
+    else if(first == 0xc)
+    {
+        buff[i] = 'c';
+    }
+    else if(first == 0xd)
+    {
+        buff[i] = 'd';
+    }
+    else if(first == 0xe)
+    {
+        buff[i] = 'e';
+    }
+    else if(first == 0xf)
+    {
+        buff[i] = 'f';
+    }
+    byte /= 0x10;
+    }
+}
+
 int visual_diff(char *argv[])
 {
     ifstream old_file(argv[2], ios::binary);
@@ -164,24 +238,95 @@ int visual_diff(char *argv[])
         cout << "Can't open file: " << argv[3] << endl;
         return 1;
     }
-    cout << "0 1 2 3 4 5 6 7 8 9 A B C D E F\n";
-    int column{};
-    while(!old_file.eof() || !new_file.eof())
+    if(argv[4][0] == '0')
     {
-        for(int i = 0; i < 16; i++)
-        {
-            char old_byte = 0, new_byte = 0;
-            old_file.get(old_byte);
-            new_file.get(new_byte);
-            if(old_file.eof() || new_file.eof())
-                cout << "\x1b[33m-\x1b[0m ";
-            else if(old_byte != new_byte)
-                cout << "\x1b[31m#\x1b[0m ";
-            else if(old_byte == new_byte)
-                cout << "\x1b[32m#\x1b[0m ";
+        cout << " -offset-  0 1 2 3 4 5 6 7 8 9 A B C D E F\n";
+        char old_byte{}, new_byte{};
+        long int offset = 0;
+        string offset_str;
+        while(!old_file.eof() || !new_file.eof())
+        {            
+            stringstream sstr;
+            sstr << hex << offset;
+            offset_str = sstr.str();
+            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            offset_str = "0x" + offset_str;
+            cout << offset_str << ' ';
+            for(int i = 0; i < 16; i++)
+            {                
+                old_byte = 0;
+                new_byte = 0;
+                old_file.get(old_byte);
+                new_file.get(new_byte);
+                if(old_file.eof() && new_file.eof()) break;
+                if(old_file.eof() || new_file.eof())
+                    cout << "\x1b[33m-\x1b[0m ";
+                else if(old_byte != new_byte)
+                    cout << "\x1b[31m#\x1b[0m ";
+                else if(old_byte == new_byte)
+                    cout << "\x1b[32m#\x1b[0m ";
+            }
+            cout << endl;
+            offset += 0x10;
         }
-        cout << endl;
     }
-    cout << endl;
+    else if(argv[4][0] == '1')
+    {
+        cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
+        char old_byte{}, new_byte{};
+        char buff[3];
+        char space{};
+        long int offset = 0;
+        string offset_str;
+        while(!old_file.eof() || !new_file.eof())
+        {
+            stringstream sstr;
+            sstr << hex << offset;
+            offset_str = sstr.str();
+            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            offset_str = "0x" + offset_str;
+            cout << offset_str << ' ';
+            for(int i = 0; i < 16; i++)
+            {                
+                old_byte = 0;
+                new_byte = 0;
+                space = '|';
+                if(i == 0) cout << space;
+                old_file.get(old_byte);
+                new_file.get(new_byte);
+                if(old_file.eof() && new_file.eof()) break;
+                if(old_file.eof() || new_file.eof())
+                {
+                    if(old_file.eof())
+                    {
+                        cout << "\x1b[33m--\x1b[0m ";
+                        byte_to_string(new_byte, buff);
+                        cout << "\x1b[31m" << buff << "\x1b[0m" << space;
+                    }
+                    else
+                    {
+                        byte_to_string(old_byte, buff);
+                        cout << "\x1b[31m" << buff << "\x1b[0m ";
+                        cout << "\x1b[33m--\x1b[0m" << space;
+                    }
+                }
+                else if(old_byte != new_byte)
+                {
+                    byte_to_string(old_byte, buff);
+                    cout << "\x1b[31m" << buff << ' ' << "\x1b[0m";
+                    byte_to_string(new_byte, buff);
+                    cout << "\x1b[31m" << buff << "\x1b[0m" << space;
+                }
+                else if(old_byte == new_byte)
+                {
+                    byte_to_string(old_byte, buff);
+                    cout << "\x1b[32m" << buff << ' ' << buff << "\x1b[0m" << space;
+                }
+            }
+            cout << endl;
+            offset += 0x10;
+        }
+    }
+
     return 0;
 }
