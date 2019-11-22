@@ -253,7 +253,7 @@ int visual_diff(char *argv[])
             offset_str = "0x" + offset_str;
             cout << offset_str << ' ';
             for(int i = 0; i < 16; i++)
-            {                
+            {
                 old_byte = 0;
                 new_byte = 0;
                 old_file.get(old_byte);
@@ -262,7 +262,9 @@ int visual_diff(char *argv[])
                 if(old_file.eof() || new_file.eof())
                     cout << "\x1b[33m-\x1b[0m ";
                 else if(old_byte != new_byte)
+                {
                     cout << "\x1b[31m#\x1b[0m ";
+                }
                 else if(old_byte == new_byte)
                     cout << "\x1b[32m#\x1b[0m ";
             }
@@ -286,6 +288,7 @@ int visual_diff(char *argv[])
             for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
             offset_str = "0x" + offset_str;
             cout << offset_str << ' ';
+            bool diff = false;
             for(int i = 0; i < 16; i++)
             {                
                 old_byte = 0;
@@ -297,6 +300,7 @@ int visual_diff(char *argv[])
                 if(old_file.eof() && new_file.eof()) break;
                 if(old_file.eof() || new_file.eof())
                 {
+                    diff = true;
                     if(old_file.eof())
                     {
                         cout << "\x1b[33m--\x1b[0m ";
@@ -316,6 +320,7 @@ int visual_diff(char *argv[])
                     cout << "\x1b[31m" << buff << ' ' << "\x1b[0m";
                     byte_to_string(new_byte, buff);
                     cout << "\x1b[31m" << buff << "\x1b[0m" << space;
+                    diff = true;
                 }
                 else if(old_byte == new_byte)
                 {
@@ -323,7 +328,8 @@ int visual_diff(char *argv[])
                     cout << "\x1b[32m" << buff << ' ' << buff << "\x1b[0m" << space;
                 }
             }
-            cout << endl;
+            if(diff) cout << " !";
+            cout << endl;            
             offset += 0x10;
         }
     }
