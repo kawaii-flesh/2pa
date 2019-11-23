@@ -312,5 +312,78 @@ int visual_diff(char *argv[])
             offset += 0x10;
         }
     }
+    else if(argv[4][0] == '2' || argv[4][0] == '3')
+    {
+        cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
+        char old_byte{}, new_byte{};
+        char space{};
+        long int offset = 0;
+        string offset_str;
+
+        string green_color  = "\x1b[32m";
+        string yellow_color = "\x1b[33m";
+        string red_color    = "\x1b[31m";
+        string drop_color   = "\x1b[0m";
+        if(argv[4][0] == '3')
+        {
+            green_color  = "";
+            yellow_color = "";
+            red_color    = "";
+            drop_color   = "";
+        }
+
+        while(!old_file.eof() || !new_file.eof())
+        {
+            stringstream sstr;
+            sstr << hex << offset;
+            offset_str = sstr.str();
+            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            offset_str = "0x" + offset_str;
+            cout << offset_str << ' ';
+            bool diff = false;
+            for(int i = 0; i < 16; i++)
+            {
+                old_byte = 0;
+                new_byte = 0;
+                space = '|';
+                if(i == 0) cout << space;
+                old_file.get(old_byte);
+                new_file.get(new_byte);
+                if(old_file.eof() && new_file.eof()) break;
+                if(old_file.eof() || new_file.eof())
+                {
+                    diff = true;
+                    if(old_file.eof())
+                    {
+                        cout << yellow_color << "--  " << drop_color;
+                        if(!(new_byte >= 0x20 && new_byte <= 126)) new_byte = '.';
+                        cout << red_color << new_byte << drop_color << space;
+                    }
+                    else
+                    {
+                        if(!(old_byte >= 0x20 && old_byte <= 126)) old_byte = '.';
+                        cout << red_color << old_byte << drop_color;
+                        cout << yellow_color << "  --" << drop_color << space;
+                    }
+                }
+                else if(old_byte != new_byte)
+                {
+                    if(!(old_byte >= 0x20 && old_byte <= 126)) old_byte = '.';
+                    cout << red_color << old_byte << " ~ " << drop_color;
+                    if(!(new_byte >= 0x20 && new_byte <= 126)) new_byte = '.';
+                    cout << red_color << new_byte << drop_color << space;
+                    diff = true;
+                }
+                else if(old_byte == new_byte)
+                {
+                    if(!(old_byte >= 0x20 && old_byte <= 126)) old_byte = '.';
+                    cout << green_color << old_byte << "   " << old_byte << drop_color << space;
+                }
+            }
+            if(diff) cout << " !";
+            cout << endl;
+            offset += 0x10;
+        }
+    }
     return 0;
 }
