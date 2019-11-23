@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         cout << "v - visualizing difference\n";
         cout << "2pa c [old file] [new file] [output patch file]\n";
         cout << "2pa p [old file] [patch file]\n";
-        cout << "2pa v [old file] [new file] [type(0-2)]\n";
+        cout << "2pa v [old file] [new file] [type(0-3)]\n";
         cout << "=========================\n";
         return 1;
     }
