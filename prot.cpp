@@ -265,11 +265,11 @@ int visual_diff(char *argv[])
             sstr << hex << offset;
             offset_str = sstr.str();
             for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
-            offset_str = "0x" + offset_str;
-            cout << offset_str << ' ';
+            offset_str = "0x" + offset_str;            
             bool diff = false;
             for(int i = 0; i < 16; i++)
             {                
+                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << offset_str << ' ';
                 old_byte = 0;
                 new_byte = 0;
                 space = '|';
@@ -282,7 +282,7 @@ int visual_diff(char *argv[])
                     diff = true;
                     if(old_file.eof())
                     {
-                        cout << yellow_color << " --" << drop_color;
+                        cout << yellow_color << "-- " << drop_color;
                         byte_to_string(new_byte, buff);
                         cout << red_color << buff << drop_color << space;
                     }
@@ -338,11 +338,11 @@ int visual_diff(char *argv[])
             sstr << hex << offset;
             offset_str = sstr.str();
             for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
-            offset_str = "0x" + offset_str;
-            cout << offset_str << ' ';
+            offset_str = "0x" + offset_str;            
             bool diff = false;
             for(int i = 0; i < 16; i++)
             {
+                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << offset_str << ' ';
                 old_byte = 0;
                 new_byte = 0;
                 space = '|';
