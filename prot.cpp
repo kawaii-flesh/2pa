@@ -251,12 +251,17 @@ int visual_diff(char *argv[])
         string yellow_color = "\x1b[33m";
         string red_color    = "\x1b[31m";
         string drop_color   = "\x1b[0m";
+        string purp_color   = "\x1b[35m";
+        string red_pulse    = "\x1b[5;31m";
+
         if(argv[4][0] == '1')
         {
             green_color  = "";
             yellow_color = "";
             red_color    = "";
             drop_color   = "";
+            purp_color   = "";
+            red_pulse    = "";
         }
 
         while(!old_file.eof() || !new_file.eof())
@@ -269,7 +274,7 @@ int visual_diff(char *argv[])
             bool diff = false;
             for(int i = 0; i < 16; i++)
             {                
-                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << offset_str << ' ';
+                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';
                 old_byte = 0;
                 new_byte = 0;
                 space = '|';
@@ -307,7 +312,7 @@ int visual_diff(char *argv[])
                     cout << green_color << buff << ' ' << buff << drop_color << space;
                 }
             }
-            if(diff) cout << " !";
+            if(diff) cout << red_pulse << " !" << drop_color;
             cout << endl;            
             offset += 0x10;
         }
@@ -324,12 +329,17 @@ int visual_diff(char *argv[])
         string yellow_color = "\x1b[33m";
         string red_color    = "\x1b[31m";
         string drop_color   = "\x1b[0m";
+        string purp_color   = "\x1b[35m";
+        string red_pulse    = "\x1b[5;31m";
+
         if(argv[4][0] == '3')
         {
             green_color  = "";
             yellow_color = "";
             red_color    = "";
             drop_color   = "";
+            purp_color   = "";
+            red_pulse    = "";
         }
 
         while(!old_file.eof() || !new_file.eof())
@@ -342,7 +352,7 @@ int visual_diff(char *argv[])
             bool diff = false;
             for(int i = 0; i < 16; i++)
             {
-                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << offset_str << ' ';
+                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';
                 old_byte = 0;
                 new_byte = 0;
                 space = '|';
@@ -380,7 +390,7 @@ int visual_diff(char *argv[])
                     cout << green_color << old_byte << "   " << old_byte << drop_color << space;
                 }
             }
-            if(diff) cout << " !";
+            if(diff) cout << red_pulse << " !" << drop_color;
             cout << endl;
             offset += 0x10;
         }
