@@ -238,9 +238,9 @@ int visual_diff(char *argv[])
         cout << "Can't open file: " << argv[3] << endl;
         return 1;
     }
+    cout << " -offset-  |F 0 S|F 1 S|F 2 S|F 3 S|F 4 S|F 5 S|F 6 S|F 7 S|F 8 S|F 9 S|F A S|F B S|F C S|F D S|F E S|F F S|\n";
     if(argv[4][0] == '0' || argv[4][0] == '1')
-    {
-        cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
+    {        
         char old_byte{}, new_byte{};
         char buff[3];
         char space{};
@@ -318,8 +318,7 @@ int visual_diff(char *argv[])
         }
     }
     else if(argv[4][0] == '2' || argv[4][0] == '3')
-    {
-        cout << " -offset-  |O 0 N|O 1 N|O 2 N|O 3 N|O 4 N|O 5 N|O 6 N|O 7 N|O 8 N|O 9 N|O A N|O B N|O C N|O D N|O E N|O F N|\n";
+    {        
         char old_byte{}, new_byte{};
         char space{};
         long int offset = 0;
