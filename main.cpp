@@ -20,6 +20,9 @@ License: GPL 3.0
 
 using namespace std;
 
+// TODO
+//ADD FLAG USE!!!!!!!
+
 int main(int argc, char *argv[])
 {
     if(argc < 4)
@@ -35,7 +38,7 @@ int main(int argc, char *argv[])
         cout << "=========================\n";
         return 1;
     }
-    int flag = check_flags(argc, argv);
+    int flag = check_action(argc, argv);
     if(flag == 1)
     {
         cout << "2pa [action] [old file] <...>\n";
@@ -49,32 +52,34 @@ int main(int argc, char *argv[])
         cout << "=========================\n";
         return 0;
     }
+    cmd_flags flags;
+    check_flags(argc, argv, flags);
     if(flag == 2)
     {
-        if(argc != 5)
+        if(argc < 5)
         {
             cout << "2pa c [old file] [new file] [output patch file]\n";
             return 1;
         }
-        create_patch(argv);
+        create_patch(argv, flags);
     }
     else if(flag == 3)
     {
-        if(argc != 4)
+        if(argc < 4)
         {
             cout << "2pa p [old file] [patch file]\n";
             return 1;
         }
-        use_patch(argv);
+        use_patch(argv, flags);
     }
     else if(flag == 4)
     {
-        if(argc != 5)
+        if(argc < 5)
         {
             cout << "2pa v [old file] [new file] [type(0-2)]\n";
             return 1;
         }
-        visual_diff(argv);
+        visual_diff(argv, flags);
     }
     return 0;
 }

@@ -17,6 +17,7 @@ License: GPL 3.0
 
 #include "prot.h"
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -24,22 +25,40 @@ License: GPL 3.0
 
 using namespace std;
 
-int check_flags(int argc, char *argv[])
+void set_flags_value(int argc, char *argv[], cmd_flags &flags)
 {
-    for(int i = 1; i < argc; i++)
+    long int *offset = (long int *)&flags;
+    for(int i = 0; i < sizeof(cmd_flags)/sizeof(long int); i++)
     {
-        if(!strcmp(argv[i], "--help"))
+        if(*offset != 0 && (*offset + 1) < argc)
         {
-            return 1;
+            *offset = strtol(argv[*offset+1], NULL, 0);
         }
+        offset++;
     }
+}
+
+void check_flags(int argc, char *argv[], cmd_flags &flags)
+{
+    for(int i = 4; i < argc; i++)
+    {
+        if(!strcmp(argv[i], "-d")) flags.dual_offset = i;
+        else if(!strcmp(argv[i], "-f")) flags.first_offset = i;
+        else if(!strcmp(argv[i], "-s")) flags.second_offset = i;
+        else if(!strcmp(argv[i], "-p")) flags.portion = i;
+    }
+    set_flags_value(argc, argv, flags);
+}
+
+int check_action(int argc, char *argv[])
+{
     if(!strcmp(argv[1], "c")) {return 2;}
     else if(!strcmp(argv[1], "p")) {return 3;}
     else if(!strcmp(argv[1], "v")) {return 4;}
     return 1;
 }
 
-int create_patch(char *argv[])
+int create_patch(char *argv[], cmd_flags &flags)
 {
     ifstream old_file(argv[2], ios::binary);
     if(!old_file.is_open())
@@ -61,6 +80,20 @@ int create_patch(char *argv[])
         new_file.close();
         cout << "Can't open file: " << argv[4] << endl;
         return 1;
+    }
+
+    if(flags.dual_offset != 0)
+    {
+        old_file.seekg(flags.dual_offset);
+        new_file.seekg(flags.dual_offset);
+    }
+    if(flags.first_offset != 0)
+    {
+        old_file.seekg(flags.first_offset);
+    }
+    if(flags.second_offset != 0)
+    {
+        new_file.seekg(flags.second_offset);
     }
 
     char old_byte{}, new_byte{};
@@ -112,7 +145,7 @@ int create_patch(char *argv[])
     return 0;
 }
 
-int use_patch(char *argv[])
+int use_patch(char *argv[], cmd_flags &flags)
 {
     ofstream old_file(argv[2], ios::binary | ios::in | ios::out);
     if(!old_file.is_open())
@@ -127,6 +160,7 @@ int use_patch(char *argv[])
         cout << "Can't open file: " << argv[3] << endl;
         return 1;
     }
+
     long int nodb{};
     while(true)
     {
@@ -223,7 +257,7 @@ void byte_to_string(unsigned char byte, char *buff)
     }
 }
 
-int visual_diff(char *argv[])
+int visual_diff(char *argv[], cmd_flags &flags)
 {
     ifstream old_file(argv[2], ios::binary);
     if(!old_file.is_open())
@@ -238,21 +272,25 @@ int visual_diff(char *argv[])
         cout << "Can't open file: " << argv[3] << endl;
         return 1;
     }
+
+    char old_byte{}, new_byte{};
+    char space{};
+    long int offset = 0;
+    string offset_str;
+
+    string green_color  = "\x1b[32m";
+    string yellow_color = "\x1b[33m";
+    string red_color    = "\x1b[31m";
+    string drop_color   = "\x1b[0m";
+    string purp_color   = "\x1b[35m";
+    string red_pulse    = "\x1b[5;31m";
+
+    long int port = 0;
+
     cout << " -offset-  |F 0 S|F 1 S|F 2 S|F 3 S|F 4 S|F 5 S|F 6 S|F 7 S|F 8 S|F 9 S|F A S|F B S|F C S|F D S|F E S|F F S|\n";
     if(argv[4][0] == '0' || argv[4][0] == '1')
     {        
-        char old_byte{}, new_byte{};
         char buff[3];
-        char space{};
-        long int offset = 0;
-        string offset_str;
-
-        string green_color  = "\x1b[32m";
-        string yellow_color = "\x1b[33m";
-        string red_color    = "\x1b[31m";
-        string drop_color   = "\x1b[0m";
-        string purp_color   = "\x1b[35m";
-        string red_pulse    = "\x1b[5;31m";
 
         if(argv[4][0] == '1')
         {
@@ -274,7 +312,7 @@ int visual_diff(char *argv[])
             bool diff = false;
             for(int i = 0; i < 16; i++)
             {                
-                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';
+                if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';                                
                 old_byte = 0;
                 new_byte = 0;
                 space = '|';
@@ -313,24 +351,20 @@ int visual_diff(char *argv[])
                 }
             }
             if(diff) cout << red_pulse << " !" << drop_color;
-            cout << endl;            
+            port++;
+            if(flags.portion != 0 && port == flags.portion)
+            {
+                char sym = cin.get();
+                if(sym == 'q') return 0;
+                else if(sym == 'c') flags.portion = 0;
+                port = 0;
+            }
+            cout << endl;
             offset += 0x10;
         }
     }
     else if(argv[4][0] == '2' || argv[4][0] == '3')
-    {        
-        char old_byte{}, new_byte{};
-        char space{};
-        long int offset = 0;
-        string offset_str;
-
-        string green_color  = "\x1b[32m";
-        string yellow_color = "\x1b[33m";
-        string red_color    = "\x1b[31m";
-        string drop_color   = "\x1b[0m";
-        string purp_color   = "\x1b[35m";
-        string red_pulse    = "\x1b[5;31m";
-
+    {                
         if(argv[4][0] == '3')
         {
             green_color  = "";
@@ -390,6 +424,14 @@ int visual_diff(char *argv[])
                 }
             }
             if(diff) cout << red_pulse << " !" << drop_color;
+            port++;
+            if(flags.portion != 0 && port == flags.portion)
+            {
+                char sym = cin.get();
+                if(sym == 'q') return 0;
+                else if(sym == 'c') flags.portion = 0;
+                port = 0;
+            }
             cout << endl;
             offset += 0x10;
         }
