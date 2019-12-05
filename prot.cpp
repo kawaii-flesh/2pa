@@ -22,6 +22,7 @@ License: GPL 3.0
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cstdio>
 
 using namespace std;
 
@@ -273,6 +274,20 @@ int visual_diff(char *argv[], cmd_flags &flags)
         return 1;
     }
 
+    if(flags.dual_offset != 0)
+    {
+        old_file.seekg(flags.dual_offset);
+        new_file.seekg(flags.dual_offset);
+    }
+    if(flags.first_offset != 0)
+    {
+        old_file.seekg(flags.first_offset);
+    }
+    if(flags.second_offset != 0)
+    {
+        new_file.seekg(flags.second_offset);
+    }
+
     char old_byte{}, new_byte{};
     char space{};
     long int offset = 0;
@@ -427,7 +442,8 @@ int visual_diff(char *argv[], cmd_flags &flags)
             port++;
             if(flags.portion != 0 && port == flags.portion)
             {
-                char sym = cin.get();
+                cin.tie(0);
+                char sym = getc(stdin);
                 if(sym == 'q') return 0;
                 else if(sym == 'c') flags.portion = 0;
                 port = 0;
