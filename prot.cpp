@@ -29,19 +29,19 @@ using namespace std;
 void set_flags_value(int argc, char *argv[], cmd_flags &flags)
 {
     long int *offset = (long int *)&flags;
-    for(int i = 0; i < sizeof(cmd_flags)/sizeof(long int); i++)
+    for(int i = 0; i < sizeof(cmd_flags)/sizeof(long int); ++i)
     {
         if(*offset != 0 && (*offset + 1) < argc)
         {
             *offset = strtol(argv[*offset+1], NULL, 0);
         }
-        offset++;
+        ++offset;
     }
 }
 
 void check_flags(int argc, char *argv[], cmd_flags &flags)
 {
-    for(int i = 4; i < argc; i++)
+    for(int i = 4; i < argc; ++i)
     {
         if(!strcmp(argv[i], "-d")) flags.dual_offset = i;
         else if(!strcmp(argv[i], "-f")) flags.first_offset = i;
@@ -123,8 +123,8 @@ int create_patch(char *argv[], cmd_flags &flags)
                 buff.push_back(new_byte);
                 old_file.get(old_byte); // next byte
                 new_file.get(new_byte); //
-                count++; // inc noneb
-                new_offset++; // for after use
+                ++count; // inc noneb
+                ++new_offset; // for after use
                 if(new_file.eof()) break;
             }
             patch_file << old_offset << '\x00'; // write offset
@@ -137,7 +137,7 @@ int create_patch(char *argv[], cmd_flags &flags)
             buff.clear();
             old_offset = new_offset; // reset offset
         }
-        old_offset++;
+        ++old_offset;
     }
     old_file.close();
     new_file.close();
@@ -322,10 +322,10 @@ int visual_diff(char *argv[], cmd_flags &flags)
             stringstream sstr;
             sstr << hex << offset;
             offset_str = sstr.str();
-            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            for(int i = offset_str.length(); i < 8; ++i) offset_str = '0' + offset_str;
             offset_str = "0x" + offset_str;            
             bool diff = false;
-            for(int i = 0; i < 16; i++)
+            for(int i = 0; i < 16; ++i)
             {                
                 if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';                                
                 old_byte = 0;
@@ -366,7 +366,7 @@ int visual_diff(char *argv[], cmd_flags &flags)
                 }
             }
             if(diff) cout << red_pulse << " !" << drop_color;
-            port++;
+            ++port;
             if(flags.portion != 0 && port == flags.portion)
             {
                 char sym = cin.get();
@@ -395,10 +395,10 @@ int visual_diff(char *argv[], cmd_flags &flags)
             stringstream sstr;
             sstr << hex << offset;
             offset_str = sstr.str();
-            for(int i = offset_str.length(); i < 8; i++) offset_str = '0' + offset_str;
+            for(int i = offset_str.length(); i < 8; ++i) offset_str = '0' + offset_str;
             offset_str = "0x" + offset_str;            
             bool diff = false;
-            for(int i = 0; i < 16; i++)
+            for(int i = 0; i < 16; ++i)
             {
                 if(i == 0 && (!new_file.eof() || !old_file.eof())) cout << purp_color << offset_str << drop_color << ' ';
                 old_byte = 0;
@@ -439,7 +439,7 @@ int visual_diff(char *argv[], cmd_flags &flags)
                 }
             }
             if(diff) cout << red_pulse << " !" << drop_color;
-            port++;
+            ++port;
             if(flags.portion != 0 && port == flags.portion)
             {
                 cin.tie(0);
