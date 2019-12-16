@@ -126,7 +126,7 @@ int create_patch(char *argv[], cmd_flags &flags)
                 ++count; // inc noneb
                 ++new_offset; // for after use
                 if(new_file.eof()) break;
-            }
+            }                    
             patch_file << old_offset << '\x00'; // write offset
             patch_file << count << '\x00'; // write noneb
             nodb += count;
@@ -139,10 +139,16 @@ int create_patch(char *argv[], cmd_flags &flags)
         }
         ++old_offset;
     }
-    old_file.close();
-    new_file.close();
-    cout << "Patch file created!\n";
-    cout << "Number of different bytes: " << nodb << endl;
+    if(nodb)
+    {
+        cout << "Patch file created!\n";
+        cout << "Number of different bytes: " << nodb << endl;
+    }
+    else
+    {
+        remove(argv[4]);
+        cout << "Files are equal!\n";
+    }
     return 0;
 }
 
