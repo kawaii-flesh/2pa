@@ -348,7 +348,7 @@ int visual_diff(char *argv[], cmd_flags &flags)
                     cout << red_color << buff << drop_color << space;
                     diff = true;
                 }
-                else if(old_byte == new_byte)
+                else
                 {
                     byte_to_string(old_byte, buff);
                     cout << green_color << buff << ' ' << buff << drop_color << space;
@@ -421,7 +421,7 @@ int visual_diff(char *argv[], cmd_flags &flags)
                     cout << red_color << new_byte << drop_color << space;
                     diff = true;
                 }
-                else if(old_byte == new_byte)
+                else
                 {
                     if(!(old_byte >= 0x20 && old_byte <= 126)) old_byte = '.';
                     cout << green_color << old_byte << "   " << old_byte << drop_color << space;
